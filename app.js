@@ -28,12 +28,13 @@ const displayController = ( () => {
     return {setBlock};
 })();
 
+// -----> I guess the only global code??? 
 let playerRound = 0; // using since we arn't using array.length to determine game end.
 
 // checks who's turn it is, gameboard status, and winning conditions
 const gameFlow = ( () => {    
     let symbol = "";
-    
+    //let playerRound = 0   // IIFE will immeidatley invoke and return the playerRound on startup, therefore always 0.
     const playerTurn = () => {
             if(playerRound == 0 || playerRound % 2 == 0){
                 // it's player 1's turn
@@ -57,8 +58,11 @@ const gameFlow = ( () => {
                 playerRound++;
                 console.log(`gameFlow playerRound ${playerRound}`)
                 let gameStatus = gameConditions();
-                console.log(gameStatus)
+                //console.log(gameStatus)
                 if(gameStatus){
+                    let messages = document.querySelector('#gamemessages');
+                    messages.textContent = gameStatus
+                    messages.style.color = "red";
                     gameEnd();
                 }
             }
@@ -74,7 +78,7 @@ const gameFlow = ( () => {
     //         playerRound++;
     //     };
     // });
-    return {playerRound}
+    return {playerRound};
 })();
 
 // check win/lose/tie
@@ -105,17 +109,17 @@ const gameConditions = () => {
     if( (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") ||
         (gameBoard._board[3] === "O" && gameBoard._board[4] === "O" && gameBoard._board[5] === "O") ||
         (gameBoard._board[6] === "O" && gameBoard._board[7] === "O" && gameBoard._board[8] === "O") ) {
-            return "Player X wins"
+            return "Player O wins"
     } // columns 
     else if ( (gameBoard._board[0] === "O" && gameBoard._board[3] === "O" && gameBoard._board[6] === "O") ||
               (gameBoard._board[1] === "O" && gameBoard._board[4] === "O" && gameBoard._board[7] === "O") || 
               (gameBoard._board[2] === "O" && gameBoard._board[5] === "O" && gameBoard._board[8] === "O") ) {
-                return "Player X wins"
+                return "Player O wins"
               } // diagonals
               else if ( (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") || 
                         (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") || 
                         (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") ) {
-                            return "Player X wins"
+                            return "Player O wins"
                         } 
 };
 
@@ -123,7 +127,11 @@ function gameEnd () {
     console.log('The game is over')
     }
 
-
+function restart () {
+    // being lazy and directly changing array
+    //gameBoard._board = ["", "", "", "", "", "", "", "", ""]
+    window.location.reload(); // can't use this if we plan to keep score.
+}
 
 ///// factories
 const player = (symbol, typeOfPlayer) => {
@@ -145,16 +153,17 @@ const playerBot = player("o", "bot");
 
 
 
-// // Notes:  https://youtu.be/aHrvi2zTlaU?t=898
-// // also Function Factory as shown below (not to be confused w/ factory function) https://youtu.be/0aKZvNNf8BA?t=487
+// Notes:  https://youtu.be/aHrvi2zTlaU?t=898
+// also Function Factory as shown below (not to be confused w/ factory function) https://youtu.be/0aKZvNNf8BA?t=487
 // function myFunc(color) {
 //     return function(){
 //         document.body.style.color = color;
 //     }
 // }
 
-// let butt = document.querySelector("button");
-// //butt.addEventListener('click', myFunc("red"));
-// butt.addEventListener('click', () => {
-//     document.body.style.color = 'red'; 
-// })
+let button = document.querySelector("button");
+//butt.addEventListener('click', myFunc("red"));
+button.addEventListener('click', () => {
+    //document.body.style.color = 'red';
+    restart(); 
+})
