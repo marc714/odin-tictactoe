@@ -1,94 +1,128 @@
-///// modules (something you only need one of)
-
 // array inputs displayed to DOM game board
-// 3. Set up your HTML and write a JavaScript function that will render the contents of the gameboard array to the webpage
 const gameBoard = ( () => {
-
-    const board = ["", "", "",
+    const _board = ["", "", "",
                    "", "", "",
                    "", "", ""];
 
-    return {board}
+    function playerMove (arrayIndex, symbol) {
+        _board[arrayIndex] = symbol;
+    };
+
+    function boardStatus () {
+        console.log(_board);
+    }
+
+    return {playerMove, boardStatus, _board} // need _board for gameConditions 
 
 })();
 
 // controls what happens when player clicks on block and sends move to gameboard
 const displayController = ( () => {
-    const block0 = document.querySelector("#block0");
-    const block1 = document.querySelector("#block1");
-    const block2 = document.querySelector("#block2");
-    const block3 = document.querySelector("#block3");
-    const block4 = document.querySelector("#block4");
-    const block5 = document.querySelector("#block5");
-    const block6 = document.querySelector("#block6");
-    const block7 = document.querySelector("#block7");
-    const block8 = document.querySelector("#block8");
-
+    // const block0 = document.querySelector("#block0");
     const setBlock = (e, symbol) => {
         e.target.textContent = symbol;
         e.target.classList.remove("empty");
         e.target.classList.add("taken");
         // The target event property returns the element that triggered the event.
     }
-
     return {setBlock};
-
 })();
+
+let playerRound = 0; // using since we arn't using array.length to determine game end.
 
 // checks who's turn it is, gameboard status, and winning conditions
 const gameFlow = ( () => {    
     let symbol = "";
-    let playerRound = 0;
-    const playerTurn = (e) => {
+    
+    const playerTurn = () => {
             if(playerRound == 0 || playerRound % 2 == 0){
                 // it's player 1's turn
                 symbol = "X";
             } else {
+                // it's player 2's turn
                 symbol = "O";
             };
-            //displayController.setBlock(e, symbol);
-        }
+        };  
 
-    block0.addEventListener("click", (e) => {
-        if(block0.classList.contains('empty')){
-            playerTurn(e);
-            displayController.setBlock(e, symbol);
-            gameBoard.board[0] = symbol;
-            playerRound++;
-        };
-    });
-    block1.addEventListener("click", (e) => {
-        if(block1.classList.contains('empty')){
-            playerTurn(e);
-            displayController.setBlock(e, symbol);
-            gameBoard.board[1] = symbol;
-            playerRound++;
-        };
-    });  
+    let blocks = document.querySelectorAll(".block");
+    blocks.forEach((block) => {
+        block.addEventListener("click", (e) => {
+            let arrayIndex = block.dataset.array;
+            //console.log(e);
+            //if(gameBoard.board[arrayIndex] === ""){
+            if(block.classList.contains('empty')){
+                playerTurn();
+                displayController.setBlock(e, symbol);
+                gameBoard.playerMove(arrayIndex, symbol); 
+                playerRound++;
+                console.log(`gameFlow playerRound ${playerRound}`)
+                let gameStatus = gameConditions();
+                console.log(gameStatus)
+                if(gameStatus){
+                    gameEnd();
+                }
+            }
+        });
+    })
     
-
-    // let blocks = document.querySelectorAll(".block");
-    // let arrayIndex = 0;
-    // blocks.forEach((block) => {
-    //     block.addEventListener("click", (e) => {
-    //         if(block.classList.contains('empty')){
-    //             playerTurn(e);
-    //             displayController.setBlock(e, symbol);
-    //             gameBoard.board[arrayIndex] = symbol;
-    //             playerRound++;
-    //             arrayIndex++;  //wrong. this only assigns on click.
-    //         }
-    //     });
-    // })
-
-
-    
+    // // why do I not need to declare/find html element first???? 
+    // gamemessages.addEventListener("click", (e) => {
+    //     if(block0.classList.contains('empty')){
+    //         playerTurn(e);
+    //         displayController.setBlock(e, symbol);
+    //         //gameBoard.board[0] = symbol;
+    //         playerRound++;
+    //     };
+    // });
+    return {playerRound}
 })();
 
 // check win/lose/tie
-const gameConditions = ( () => {
+const gameConditions = () => {
+    //console.log(`gameConditions ${playerRound}`)
+    //// tie
+    if (playerRound == 9)
+        return "It's a tie! Click on Restart."
+    //// player X
+    // rows
+    if( (gameBoard._board[0] === "X" && gameBoard._board[1] === "X" && gameBoard._board[2] === "X") ||
+        (gameBoard._board[3] === "X" && gameBoard._board[4] === "X" && gameBoard._board[5] === "X") ||
+        (gameBoard._board[6] === "X" && gameBoard._board[7] === "X" && gameBoard._board[8] === "X") ) {
+            return "Player X wins"
+    } // columns 
+    else if ( (gameBoard._board[0] === "X" && gameBoard._board[3] === "X" && gameBoard._board[6] === "X") ||
+              (gameBoard._board[1] === "X" && gameBoard._board[4] === "X" && gameBoard._board[7] === "X") || 
+              (gameBoard._board[2] === "X" && gameBoard._board[5] === "X" && gameBoard._board[8] === "X") ) {
+                return "Player X wins"
+              } // diagonals
+              else if ( (gameBoard._board[0] === "X" && gameBoard._board[1] === "X" && gameBoard._board[2] === "X") || 
+                        (gameBoard._board[0] === "X" && gameBoard._board[1] === "X" && gameBoard._board[2] === "X") || 
+                        (gameBoard._board[0] === "X" && gameBoard._board[1] === "X" && gameBoard._board[2] === "X") ) {
+                            return "Player X wins"
+                        } 
+    //// player O
+    // rows
+    if( (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") ||
+        (gameBoard._board[3] === "O" && gameBoard._board[4] === "O" && gameBoard._board[5] === "O") ||
+        (gameBoard._board[6] === "O" && gameBoard._board[7] === "O" && gameBoard._board[8] === "O") ) {
+            return "Player X wins"
+    } // columns 
+    else if ( (gameBoard._board[0] === "O" && gameBoard._board[3] === "O" && gameBoard._board[6] === "O") ||
+              (gameBoard._board[1] === "O" && gameBoard._board[4] === "O" && gameBoard._board[7] === "O") || 
+              (gameBoard._board[2] === "O" && gameBoard._board[5] === "O" && gameBoard._board[8] === "O") ) {
+                return "Player X wins"
+              } // diagonals
+              else if ( (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") || 
+                        (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") || 
+                        (gameBoard._board[0] === "O" && gameBoard._board[1] === "O" && gameBoard._board[2] === "O") ) {
+                            return "Player X wins"
+                        } 
+};
 
-})();
+function gameEnd () {
+    console.log('The game is over')
+    }
+
 
 
 ///// factories
@@ -106,3 +140,21 @@ const player = (symbol, typeOfPlayer) => {
 const playerFirst = player("x", "human");
 const playerSecond = player("o", "human");
 const playerBot = player("o", "bot");
+
+
+
+
+
+// // Notes:  https://youtu.be/aHrvi2zTlaU?t=898
+// // also Function Factory as shown below (not to be confused w/ factory function) https://youtu.be/0aKZvNNf8BA?t=487
+// function myFunc(color) {
+//     return function(){
+//         document.body.style.color = color;
+//     }
+// }
+
+// let butt = document.querySelector("button");
+// //butt.addEventListener('click', myFunc("red"));
+// butt.addEventListener('click', () => {
+//     document.body.style.color = 'red'; 
+// })
