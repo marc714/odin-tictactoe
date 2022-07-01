@@ -1,6 +1,6 @@
 // array inputs displayed to DOM game board
 const gameBoard = ( () => {
-    const _board = ["", "", "",
+    let _board = ["", "", "",
                    "", "", "",
                    "", "", ""];
 
@@ -8,11 +8,17 @@ const gameBoard = ( () => {
         _board[arrayIndex] = symbol;
     };
 
-    function boardStatus () {
-        console.log(_board);
+    function boardStatus() {
+        console.log(this._board);
     }
 
-    return {playerMove, boardStatus, _board} // need _board for gameConditions 
+    function reset() {
+        // you are reassigning the _board property to a new memory reference. However, the gameConditions is still referencing/pointing to the old array, hence it won't work on new rounds.
+        //this._board = ["", "", "", "", "", "", "", "", ""];
+        this._board.length = 0;
+    }
+
+    return {playerMove, boardStatus, _board, reset} // need _board for gameConditions 
 
 })();
 
@@ -25,7 +31,20 @@ const displayController = ( () => {
         e.target.classList.add("taken");
         // The target event property returns the element that triggered the event.
     }
-    return {setBlock};
+
+    const clearDisplay = () => {
+        let blocks = document.querySelectorAll(".block");
+        blocks.forEach((block) => { 
+            block.classList.remove("taken");
+            block.classList.add("empty");
+            block.textContent = "";
+            });
+        let messages = document.querySelector('#gamemessages');
+        messages.textContent = "Playing new round."
+        messages.style.color = "red";
+    };
+
+    return {setBlock, clearDisplay};
 })();
 
 // -----> I guess the only global code??? 
@@ -33,16 +52,30 @@ const displayController = ( () => {
 
 const gameScore = ( () => {
     let playerRound = 0;
-    let score1 = 0;
-    let score2 = 0;
+    let _score1 = 0;
+    let _score2 = 0;
 
-    const setScore = (player, score) => {
-        let playerOneScore = document.querySelector("player-score-1");
-        let playerTwoScore = document.querySelector("player-score-2");
+    const setScore1 = () => {
+        let playerOneScore = document.querySelector(".player-score-1");
+        _score1++
+        playerOneScore.textContent = _score1;
+    }
 
+    const setScore2 = () => {
+        let playerTwoScore = document.querySelector(".player-score-2");
+        _score2++
+        playerTwoScore.textContent = _score2;
+    }
+
+    // const reset = () => {
+    //     playerRound = 0;
+    // }
+
+    function reset(){
+        this.playerRound = 0;
     }
     
-    return {playerRound, score1, score2}
+    return {playerRound, setScore1, setScore2, reset}
 })();
 
 // checks who's turn it is, gameboard status, and winning conditions
@@ -76,11 +109,10 @@ const gameFlow = ( () => {
                 if(gameStatus){
                     let messages = document.querySelector('#gamemessages');
                     messages.textContent = gameStatus
-                    messages.style.color = "red";
                     if(gameStatus === "Player X wins"){
-
+                        gameScore.setScore1();
                     } else if (gameStatus === "Player O wins"){
-
+                        gameScore.setScore2();
                     }
                     gameEnd();
                 }
@@ -146,21 +178,18 @@ function gameEnd () {
     gameScore.playerRound = 9;
 }
 
-// reset round count
+// reset everything including round count
 function reset() {
     window.location.reload(); // can't use this if we plan to keep score.
 }
 
-// try again
-function restart(){
-    playerRound = 0;
-    gameBoard._board = ["", "", "", "", "", "", "", "", ""]
-
-    let blocks = document.querySelectorAll(".block");
-    blocks.forEach((block) => { 
-        block.classList.remove("taken");
-        block.classList.add("empty");
-})}
+// try again. leave's scores alone.
+function restart(){    
+    gameBoard.reset();
+    gameBoard.boardStatus();
+    gameScore.reset();
+    displayController.clearDisplay();
+}
 
 ///// factories
 const player = (symbol, typeOfPlayer) => {
@@ -190,9 +219,12 @@ const playerBot = player("o", "bot");
 //     }
 // }
 
-let button = document.querySelector("button");
+let buttonRestart = document.querySelector("#restart");
+let buttonReset = document.querySelector("#reset")
 //butt.addEventListener('click', myFunc("red"));
-button.addEventListener('click', () => {
+buttonRestart.addEventListener('click', () => {
     //document.body.style.color = 'red';
-    reset(); 
+    restart(); 
 })
+
+buttonReset.addEventListener('click', reset);
