@@ -10,8 +10,17 @@
 </head>
 <body>
     <h1>Tic Tac Toe</h1>
-    <div id="container">
-        <div id="scoreboard"></div>
+    <div class="container">
+        <div id="scoreboard">
+            <div class="scoreboard-left">
+                <div class="player-name">User</div>
+                <div class="player-score player-score-1">0</div>
+            </div>
+            <div class="scoreboard-right">
+                <div class="player-name">HAL-9000</div>
+                <div class="player-score player-score-2">0</div>
+            </div>
+        </div>
         <div id="gameboard">
             <div id="block0" class="block empty" data-array="0"></div>
             <div id="block1" class="block empty" data-array="1"></div>
@@ -25,7 +34,10 @@
         </div>
         <div id="gamemessages" class="screen">Let the battle begin!</div>
 
-        <button>Restart</button>
+        <div class="button-container">
+            <button id="restart">Restart</button>
+            <button id="reset">Reset</button>
+        </div>
 
     </div>
 </body>

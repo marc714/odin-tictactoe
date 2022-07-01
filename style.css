@@ -14,12 +14,31 @@ h1 {
     padding: 20px;
 }
 
-#container {
+.container {
     margin: auto;
     width: 800px;
     background-color: grey;
     padding: 20px;
     display: grid;
+}
+
+#scoreboard {
+    display: flex;
+    gap: 50px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.scoreboard-left, .scoreboard-right {
+    display: flex;
+    gap: 20px;
+    background-color: lavender;
+    padding: 5px;
+}
+
+.player-score {
+    background-color: darkorchid;
+    padding: 0px 5px;
 }
 
 #gameboard {
@@ -47,6 +66,12 @@ h1 {
     font-size: 20px;
     text-align: center;
     padding: 20px;
+}
+
+.button-container {
+    display: flex;
+    width: 30%;
+    margin: auto;
 }
 
 button {

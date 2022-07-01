@@ -29,14 +29,28 @@ const displayController = ( () => {
 })();
 
 // -----> I guess the only global code??? 
-let playerRound = 0; // using since we arn't using array.length to determine game end.
+//let playerRound = 0; // using since we arn't using array.length to determine game end.
+
+const gameScore = ( () => {
+    let playerRound = 0;
+    let score1 = 0;
+    let score2 = 0;
+
+    const setScore = (player, score) => {
+        let playerOneScore = document.querySelector("player-score-1");
+        let playerTwoScore = document.querySelector("player-score-2");
+
+    }
+    
+    return {playerRound, score1, score2}
+})();
 
 // checks who's turn it is, gameboard status, and winning conditions
 const gameFlow = ( () => {    
     let symbol = "";
     //let playerRound = 0   // IIFE will immeidatley invoke and return the playerRound on startup, therefore always 0.
     const playerTurn = () => {
-            if(playerRound == 0 || playerRound % 2 == 0){
+            if(gameScore.playerRound == 0 || gameScore.playerRound % 2 == 0){
                 // it's player 1's turn
                 symbol = "X";
             } else {
@@ -51,18 +65,23 @@ const gameFlow = ( () => {
             let arrayIndex = block.dataset.array;
             //console.log(e);
             //if(gameBoard.board[arrayIndex] === ""){
-            if(block.classList.contains('empty')){
+            if(block.classList.contains('empty') && gameScore.playerRound !== 9){
                 playerTurn();
                 displayController.setBlock(e, symbol);
                 gameBoard.playerMove(arrayIndex, symbol); 
-                playerRound++;
-                console.log(`gameFlow playerRound ${playerRound}`)
+                gameScore.playerRound++;
+                console.log(`gameFlow playerRound ${gameScore.playerRound}`)
                 let gameStatus = gameConditions();
                 //console.log(gameStatus)
                 if(gameStatus){
                     let messages = document.querySelector('#gamemessages');
                     messages.textContent = gameStatus
                     messages.style.color = "red";
+                    if(gameStatus === "Player X wins"){
+
+                    } else if (gameStatus === "Player O wins"){
+
+                    }
                     gameEnd();
                 }
             }
@@ -78,14 +97,15 @@ const gameFlow = ( () => {
     //         playerRound++;
     //     };
     // });
-    return {playerRound};
+
+    //return {playerRound};
 })();
 
 // check win/lose/tie
 const gameConditions = () => {
     //console.log(`gameConditions ${playerRound}`)
     //// tie
-    if (playerRound == 9)
+    if (gameScore.playerRound == 9)
         return "It's a tie! Click on Restart."
     //// player X
     // rows
@@ -123,13 +143,24 @@ const gameConditions = () => {
 
 function gameEnd () {
     console.log('The game is over')
-    }
+    gameScore.playerRound = 9;
+}
 
-function restart () {
-    // being lazy and directly changing array
-    //gameBoard._board = ["", "", "", "", "", "", "", "", ""]
+// reset round count
+function reset() {
     window.location.reload(); // can't use this if we plan to keep score.
 }
+
+// try again
+function restart(){
+    playerRound = 0;
+    gameBoard._board = ["", "", "", "", "", "", "", "", ""]
+
+    let blocks = document.querySelectorAll(".block");
+    blocks.forEach((block) => { 
+        block.classList.remove("taken");
+        block.classList.add("empty");
+})}
 
 ///// factories
 const player = (symbol, typeOfPlayer) => {
@@ -163,5 +194,5 @@ let button = document.querySelector("button");
 //butt.addEventListener('click', myFunc("red"));
 button.addEventListener('click', () => {
     //document.body.style.color = 'red';
-    restart(); 
+    reset(); 
 })
