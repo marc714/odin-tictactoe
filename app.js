@@ -15,7 +15,8 @@ const gameBoard = ( () => {
     function reset() {
         // you are reassigning the _board property to a new memory reference. However, the gameConditions is still referencing/pointing to the old array, hence it won't work on new rounds.
         //this._board = ["", "", "", "", "", "", "", "", ""];
-        this._board.length = 0;
+        //this._board.length = 0; // this will cause infinite w/ the bot since random index can be 0.
+        this._board.splice(0, 9, "", "", "", "", "", "", "", "", "");
     }
 
     return {playerMove, boardStatus, _board, reset} // need _board for gameConditions 
@@ -32,6 +33,15 @@ const displayController = ( () => {
         // The target event property returns the element that triggered the event.
     }
 
+    const setBotBlock = (botArrayIndexDATA, symbol) => {
+        console.log("setBotBlock's botArrayIndex: " + botArrayIndexDATA)
+        let index = document.querySelector(`[data-array="${botArrayIndexDATA}"]`)
+        console.log("Index: " + index);
+        index.textContent = symbol;
+        index.classList.remove("empty");
+        index.classList.add("taken");
+    }
+
     const clearDisplay = () => {
         let blocks = document.querySelectorAll(".block");
         blocks.forEach((block) => { 
@@ -44,11 +54,8 @@ const displayController = ( () => {
         messages.style.color = "red";
     };
 
-    return {setBlock, clearDisplay};
+    return {setBlock, clearDisplay, setBotBlock};
 })();
-
-// -----> I guess the only global code??? 
-//let playerRound = 0; // using since we arn't using array.length to determine game end.
 
 const gameScore = ( () => {
     let playerRound = 0;
@@ -66,10 +73,6 @@ const gameScore = ( () => {
         _score2++
         playerTwoScore.textContent = _score2;
     }
-
-    // const reset = () => {
-    //     playerRound = 0;
-    // }
 
     function reset(){
         this.playerRound = 0;
@@ -99,13 +102,13 @@ const gameFlow = ( () => {
             //console.log(e);
             //if(gameBoard.board[arrayIndex] === ""){
             if(block.classList.contains('empty') && gameScore.playerRound !== 9){
-                playerTurn();
-                displayController.setBlock(e, symbol);
+                playerTurn(); // whose turn and symbol is it? 
+                displayController.setBlock(e, symbol);                
                 gameBoard.playerMove(arrayIndex, symbol); 
                 gameScore.playerRound++;
                 console.log(`gameFlow playerRound ${gameScore.playerRound}`)
+
                 let gameStatus = gameConditions();
-                //console.log(gameStatus)
                 if(gameStatus){
                     let messages = document.querySelector('#gamemessages');
                     messages.textContent = gameStatus
@@ -115,7 +118,36 @@ const gameFlow = ( () => {
                         gameScore.setScore2();
                     }
                     gameEnd();
-                }
+                }    
+            }
+            // if bot is on
+            if(bot.status == "On" && gameScore.playerRound !== 9){
+            //if(block.classList.contains('empty') && gameScore.playerRound !== 9){
+                console.log("bot status == On therefore moving")
+                // playerTurn(); // whose turn and symbol is it? 
+                // console.log("bot symbol: " + symbol)
+                //symbol = "O"
+                let botMove = bot.move(); // run function to get the arrayIndex
+                console.log("after bot.move()");
+                let botArrayIndex = bot.botArrayIndex;
+                console.log("botArrayIndex: " + botArrayIndex)
+                displayController.setBotBlock(botArrayIndex, "O"); // display move to DOM                
+                gameBoard.playerMove(botArrayIndex, "O"); // sets move in game array
+                
+                gameScore.playerRound++; // advance to next round
+                console.log(`gameFlow playerRound ${gameScore.playerRound}`)
+
+                let gameStatus = gameConditions(); // check to see if win-lose-tie
+                if(gameStatus){
+                    let messages = document.querySelector('#gamemessages');
+                    messages.textContent = gameStatus
+                    if(gameStatus === "Player X wins"){
+                        gameScore.setScore1();
+                    } else if (gameStatus === "Player O wins"){
+                        gameScore.setScore2();
+                    }
+                    gameEnd();
+                }    
             }
         });
     })
@@ -133,12 +165,55 @@ const gameFlow = ( () => {
     //return {playerRound};
 })();
 
+const bot = ( ()=> {
+    let status = "Off";
+    let botArrayIndex = "";
+    
+
+    function move(){
+        // will need to change the array length 0 on restart later.
+        // let boardCopy = gameBoard._board.map( (element) => {
+        //     return element;
+        // });
+        // console.table("Copy of boardgame is: " + boardCopy);
+        // console.log("boardCopy.length: " + boardCopy.length)
+
+        //skill: random
+        
+        // while (gameBoard._board[i] !== "X" || gameBoard._board[i] !== "O") {
+        //     let i = Math.floor(Math.random() * gameBoard._board.length)
+        //     //console.log(x);
+        //     console.log("module botArrayIndex: " + i)
+        //     return this.botArrayIndex = i;
+        // }
+
+        let randomIndex = Math.floor(Math.random()*gameBoard._board.length);
+        console.log("before if statement randomIndex: " + randomIndex)
+        if(gameBoard._board[randomIndex] == "X" || gameBoard._board[randomIndex] == "O"){
+            return bot.move(); // recursion? https://stackoverflow.com/questions/19075461/generate-one-random-index-from-an-array-but-exclude-one-javascript
+        } else {
+            this.botArrayIndex = randomIndex;
+            console.log("else statement botArrayIndex: " + botArrayIndex)
+
+            //return botArrayIndex;
+        }
+        console.log(botArrayIndex)
+    }
+
+    return {status, move, botArrayIndex}
+})();
+
+let botSwitch = document.querySelector("#botSwitch");
+botSwitch.addEventListener("click", () => {
+    bot.status = "On";
+    console.log("Bot is now ON")
+});
+
+
 // check win/lose/tie
 const gameConditions = () => {
     //console.log(`gameConditions ${playerRound}`)
-    //// tie
-    if (gameScore.playerRound == 9)
-        return "It's a tie! Click on Restart."
+    
     //// player X
     // rows
     if( (gameBoard._board[0] === "X" && gameBoard._board[1] === "X" && gameBoard._board[2] === "X") ||
@@ -171,11 +246,14 @@ const gameConditions = () => {
                         (gameBoard._board[6] === "O" && gameBoard._board[4] === "O" && gameBoard._board[2] === "O") ) {
                             return "Player O wins"
                         } 
+    //// tie
+    if (gameScore.playerRound == 9)
+        return "It's a tie! Click on Restart."
 };
 
 function gameEnd () {
     console.log('The game is over')
-    gameScore.playerRound = 9;
+    gameScore.playerRound = 9; // disables all click event listeners.
 }
 
 // reset everything including round count
@@ -192,20 +270,20 @@ function restart(){
 }
 
 ///// factories
-const player = (symbol, typeOfPlayer) => {
-    let wins = 0;
-    let playerType = typeOfPlayer;
-    const winGame = () => {
-        wins++;
-        console.log(`${symbol} wins game. Games won: ${wins}`);
-    }
-    return { symbol, winGame }
+// const player = (symbol, typeOfPlayer) => {
+//     let wins = 0;
+//     let playerType = typeOfPlayer;
+//     const winGame = () => {
+//         wins++;
+//         console.log(`${symbol} wins game. Games won: ${wins}`);
+//     }
+//     return { symbol, winGame }
 
-};
+// };
 
-const playerFirst = player("x", "human");
-const playerSecond = player("o", "human");
-const playerBot = player("o", "bot");
+// const playerFirst = player("x", "human");
+// const playerSecond = player("o", "human");
+// const playerBot = player("o", "bot");
 
 
 
