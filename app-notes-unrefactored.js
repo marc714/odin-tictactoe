@@ -333,3 +333,12 @@ const botButton = ( ()=> {
         botBtn.addEventListener("click", botButtonOn);    
 })();
 
+
+
+/* recursion w/o returns
+
+https://betterprogramming.pub/importance-of-the-return-keyword-in-recursive-javascript-functions-d12203c30d1a
+
+https://stackoverflow.com/questions/47935979/why-does-a-recursive-function-call-need-to-return-a-value-to-calling-function
+
+*/
