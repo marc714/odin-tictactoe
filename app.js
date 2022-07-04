@@ -39,7 +39,7 @@ const displayController = ( () => {
     const clearDisplay = () => {
         let blocks = document.querySelectorAll(".block");
         blocks.forEach((block) => { 
-            block.classList.remove("taken");
+            block.classList.remove("taken", "fade-in-text");
             block.classList.add("empty");
             block.textContent = "";
             });
