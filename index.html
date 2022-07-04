@@ -13,11 +13,11 @@
     <div class="container">
         <div id="scoreboard">
             <div class="scoreboard-left">
-                <div class="player-name">User "X"</div>
+                <div class="player-name player-x">User "X"</div>
                 <div class="player-score player-score-1">0</div>
             </div>
             <div class="scoreboard-right">
-                <div class="player-name">HAL-9000 "O"</div>
+                <div class="player-name player-o">User "O"</div>
                 <div class="player-score player-score-2">0</div>
             </div>
         </div>
@@ -39,13 +39,18 @@
             <button id="reset">Reset All</button>
         </div>
         <div class="bot-container">
-            <button id="botSwitch">Play BOT</button>
-            <label for="skill">Play BOT</label>
-            <select name="skill" id="skill-level">
-                <option value="off" default>Off</option>
-                <option value="easy">Easy</option>
-                <option value="hard">Hard</option>
-            </select>
+            <fieldset>
+                <div class="bot-button-container">
+                    <button id="botSwitch">Play BOT</button>
+                    <label for="botSwitch">Press Button First</label>
+                </div>
+                <label for="skill" hidden>Play BOT</label>
+                <select name="skill" id="skill-level" hidden>
+                    <option value="off" default>Off</option>
+                    <option value="easy">Easy</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </fieldset>
         </div>
 
     </div>
