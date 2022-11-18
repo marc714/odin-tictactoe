@@ -4,6 +4,7 @@ const gameBoard = ( () => {
                    "", "", "",
                    "", "", ""];
 
+    // 11/17/22  why am i using 'this' -not needed?
     function playerMove (arrayIndex, symbol) {
         _board[arrayIndex] = symbol;
     };
@@ -96,20 +97,24 @@ const gameFlow = ( () => {
             };
         };  
 
+    // select all the squares and add eventlistener to all
     let blocks = document.querySelectorAll(".block");
     blocks.forEach((block) => {
         block.addEventListener("click", (e) => {
+            // create arrayIndex, and set it to the block'c unique dataset array number
             let arrayIndex = block.dataset.array;
             //console.log(e);
             //if(gameBoard.board[arrayIndex] === ""){
+
+            // if block has 'empty' class, invoke playerTurn()
             if(block.classList.contains('empty') && gameScore.playerRound !== 9){
                 playerTurn(); // whose turn and symbol is it? 
-                displayController.setBlock(e, symbol);                
-                gameBoard.playerMove(arrayIndex, symbol); 
-                gameScore.playerRound++;
+                displayController.setBlock(e, symbol); // mark X or O to screen               
+                gameBoard.playerMove(arrayIndex, symbol); // mark change to board array 
+                gameScore.playerRound++; // next round
                 console.log(`gameFlow playerRound ${gameScore.playerRound}`)
 
-                let gameStatus = gameConditions();
+                let gameStatus = gameConditions(); // check conditions before next round
                 if(gameStatus){
                     let messages = document.querySelector('#gamemessages');
                     messages.textContent = gameStatus
@@ -118,7 +123,7 @@ const gameFlow = ( () => {
                     } else if (gameStatus === "Player O wins"){
                         gameScore.setScore2();
                     }
-                    gameEnd();
+                    gameEnd(); // game end. if not, then leave alone and wait for user/bot move. code for round has run it's length.
                 }    
             }
             // if bot is on

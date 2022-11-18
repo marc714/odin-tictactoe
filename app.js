@@ -8,14 +8,18 @@ const gameBoard = ( () => {
         _board[arrayIndex] = symbol;
     };
 
+    // 11/17/22 why did i add 'this'  ? 
     function boardStatus() {
-        console.log(this._board);
+        // console.log(this._board);
+        console.log(_board);
     }
 
     function reset() {
-        this._board.splice(0, 9, "", "", "", "", "", "", "", "", "");
-    }
+        // this._board.splice(0, 9, "", "", "", "", "", "", "", "", "");
+        _board.splice(0, 9, "", "", "", "", "", "", "", "", "");
 
+    }
+    
     return {playerMove, boardStatus, _board, reset} // need _board for gameConditions 
 })();
 
